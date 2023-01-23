@@ -3,10 +3,14 @@ import { mouse } from '@nut-tree/nut-js';
 import { upMouse, leftMouse, downMouse, rightMouse } from './control.js';
 import { circle, rectangle, square } from './figures.js';
 import { mousePosition } from './mousePosition.js';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
+
+const PORT = process.env.PORT_SERVER || 8080;
 mouse.config.mouseSpeed = 0;
 mouse.config.autoDelayMs = 100;
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: +PORT });
 
 wss.on('connection', function connection(ws) {
   const duplex = createWebSocketStream(ws, { encoding: 'utf8' });
@@ -55,4 +59,9 @@ wss.on('connection', function connection(ws) {
         break;
     }
   });
+});
+
+process.on('SIGINT', () => {
+  wss.close();
+  process.exit();
 });
